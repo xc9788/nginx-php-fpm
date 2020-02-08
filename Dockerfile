@@ -185,6 +185,9 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     autoconf \
     make \
     gcc \
+    g++ \
+    libmemcached \
+    libmemcached-dev \
     musl-dev \
     linux-headers \
     libmcrypt-dev \
@@ -214,7 +217,7 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     pip3 install -U pip && \
     pip3 install -U certbot && \
     mkdir -p /etc/letsencrypt/webrootauth && \
-    apk del gcc musl-dev linux-headers libffi-dev augeas-dev python3-dev make autoconf
+    apk del gcc musl-dev linux-headers libffi-dev augeas-dev python3-dev
 #    apk del .sys-deps
 #    ln -s /usr/bin/php7 /usr/bin/php
 
