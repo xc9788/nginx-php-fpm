@@ -1,14 +1,19 @@
 FROM php:7.3.9-fpm-alpine3.10
 
+ENV php_conf /usr/local/etc/php-fpm.conf
+ENV fpm_conf /usr/local/etc/php-fpm.d/www.conf
 ENV php_vars /usr/local/etc/php/conf.d/docker-vars.ini
 
 ENV NGINX_VERSION 1.16.1
 ENV LUA_MODULE_VERSION 0.10.14
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
 ENV GEOIP2_MODULE_VERSION 3.2
+ENV LUAJIT_LIB=/usr/lib
+ENV LUAJIT_INC=/usr/include/luajit-2.1
 
 # resolves #166
-RUN apk add --no-cache --repository http://mirrors.aliyun.com/alpine/edge/community gnu-libiconv autoconf gcc g++ make libmemcached libmemcached-dev
+ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
+RUN apk add --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community gnu-libiconv
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   && CONFIG="\
@@ -255,17 +260,19 @@ RUN echo "cgi.fix_pathinfo=0" > ${php_vars} &&\
         -e "s/;listen.group = www-data/listen.group = nginx/g" \
         -e "s/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/g" \
         -e "s/^;clear_env = no$/clear_env = no/" \
-        /usr/local/etc/php-fpm.d/www.conf
+        ${fpm_conf}
 #    ln -s /etc/php7/php.ini /etc/php7/conf.d/php.ini && \
 #    find /etc/php7/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
 
 
 # Add Scripts
 ADD scripts/start.sh /start.sh
+RUN chmod 755 /start.sh
 
 # copy in code
 ADD src/ /var/www/html/
 
-EXPOSE 80 443
+EXPOSE 443 80
 
 WORKDIR "/var/www/html"
+CMD ["/start.sh"]
