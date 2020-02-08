@@ -8,7 +8,6 @@ ENV DEVEL_KIT_MODULE_VERSION 0.3.0
 ENV GEOIP2_MODULE_VERSION 3.2
 
 # resolves #166
-ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 RUN apk add --no-cache --repository http://mirrors.aliyun.com/alpine/edge/community gnu-libiconv autoconf gcc g++ make libmemcached libmemcached-dev
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
@@ -207,9 +206,6 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     mkdir -p /var/www/app && \
     mkdir -p /run/nginx && \
     mkdir -p /var/log/supervisor && \
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-    php composer-setup.php --quiet --install-dir=/usr/bin --filename=composer && \
-    rm composer-setup.php && \
     pip3 install -U pip && \
     pip3 install -U certbot && \
     mkdir -p /etc/letsencrypt/webrootauth && \
