@@ -235,10 +235,10 @@ ADD conf/nginx-site-ssl.conf /etc/nginx/sites-available/default-ssl.conf
 RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
 
 # Add GeoLite2 databases (https://dev.maxmind.com/geoip/geoip2/geolite2/)
-RUN curl -fSL http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz -o /etc/nginx/GeoLite2-City.mmdb.gz \
-    && curl -fSL http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz -o /etc/nginx/GeoLite2-Country.mmdb.gz \
-    && gunzip /etc/nginx/GeoLite2-City.mmdb.gz \
-    && gunzip /etc/nginx/GeoLite2-Country.mmdb.gz
+# RUN curl -fSL http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz -o /etc/nginx/GeoLite2-City.mmdb.gz \
+#     && curl -fSL http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz -o /etc/nginx/GeoLite2-Country.mmdb.gz \
+#     && gunzip /etc/nginx/GeoLite2-City.mmdb.gz \
+#     && gunzip /etc/nginx/GeoLite2-Country.mmdb.gz
 
 # tweak php-fpm config
 RUN echo "cgi.fix_pathinfo=0" > ${php_vars} &&\
