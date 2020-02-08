@@ -1,21 +1,15 @@
 FROM php:7.3.9-fpm-alpine3.10
 
-LABEL maintainer="Ric Harvey <ric@ngd.io>"
-
-ENV php_conf /usr/local/etc/php-fpm.conf
-ENV fpm_conf /usr/local/etc/php-fpm.d/www.conf
 ENV php_vars /usr/local/etc/php/conf.d/docker-vars.ini
 
 ENV NGINX_VERSION 1.16.1
 ENV LUA_MODULE_VERSION 0.10.14
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
 ENV GEOIP2_MODULE_VERSION 3.2
-ENV LUAJIT_LIB=/usr/lib
-ENV LUAJIT_INC=/usr/include/luajit-2.1
 
 # resolves #166
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
-RUN apk add --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community gnu-libiconv
+RUN apk add --no-cache --repository http://mirrors.aliyun.com/alpine/edge/community gnu-libiconv autoconf gcc g++ make libmemcached libmemcached-dev
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   && CONFIG="\
@@ -208,8 +202,6 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     #docker-php-ext-install pdo_mysql pdo_sqlite mysqli mcrypt gd exif intl xsl json soap dom zip opcache && \
     docker-php-ext-install iconv pdo_mysql pdo_sqlite pgsql pdo_pgsql mysqli gd exif intl xsl json soap dom zip opcache && \
     pecl install xdebug-2.7.2 && \
-    pecl install -o -f redis && \
-    echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini && \
     docker-php-source delete && \
     mkdir -p /etc/nginx && \
     mkdir -p /var/www/app && \
@@ -267,25 +259,17 @@ RUN echo "cgi.fix_pathinfo=0" > ${php_vars} &&\
         -e "s/;listen.group = www-data/listen.group = nginx/g" \
         -e "s/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/g" \
         -e "s/^;clear_env = no$/clear_env = no/" \
-        ${fpm_conf}
+        /usr/local/etc/php-fpm.d/www.conf
 #    ln -s /etc/php7/php.ini /etc/php7/conf.d/php.ini && \
 #    find /etc/php7/conf.d/ -name "*.ini" -exec sed -i -re 's/^(\s*)#(.*)/\1;\2/g' {} \;
 
 
 # Add Scripts
 ADD scripts/start.sh /start.sh
-ADD scripts/pull /usr/bin/pull
-ADD scripts/push /usr/bin/push
-ADD scripts/letsencrypt-setup /usr/bin/letsencrypt-setup
-ADD scripts/letsencrypt-renew /usr/bin/letsencrypt-renew
-RUN chmod 755 /usr/bin/pull && chmod 755 /usr/bin/push && chmod 755 /usr/bin/letsencrypt-setup && chmod 755 /usr/bin/letsencrypt-renew && chmod 755 /start.sh
 
 # copy in code
 ADD src/ /var/www/html/
-ADD errors/ /var/www/errors
 
-
-EXPOSE 443 80
+EXPOSE 80 443
 
 WORKDIR "/var/www/html"
-CMD ["/start.sh"]
